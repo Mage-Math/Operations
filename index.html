@@ -34,7 +34,7 @@
       border: 2px solid #e2e8f0;
       border-radius: 28px;
       padding: 28px;
-      max-width: 620px;
+      max-width: 680px;
       width: 100%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
@@ -106,12 +106,12 @@
 
     .chip-arena {
       background: #f8fafc;
-      min-height: 120px;
+      min-height: 140px;
       border-radius: 20px;
       padding: 16px;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
       justify-content: center;
       border: 3px dashed #cbd5e1;
@@ -119,10 +119,35 @@
       position: relative;
     }
 
-    /* Interactive Clickable Chips */
+    /* Visual Groups Container for Multiplication */
+    .chip-group {
+      border: 2px dashed #0284c7;
+      background: #f0f9ff;
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: popIn 0.25s ease;
+    }
+
+    .chip-group-label {
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
     .chip {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -134,8 +159,7 @@
       animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       cursor: pointer;
       user-select: none;
-      position: relative;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .chip:hover {
@@ -183,11 +207,24 @@
       outline: none;
     }
 
+    /* Control Panel Grid */
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
+    
+    .mult-group-controls {
+      grid-column: span 2;
+      display: flex;
+      gap: 10px;
+      background: #f0f9ff;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1.5px solid #bae6fd;
+      margin-bottom: 4px;
+    }
+
     button {
       font-family: inherit;
       padding: 14px;
@@ -205,6 +242,16 @@
     
     .btn-drain { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
     .btn-drain:hover { background: #fca5a5; }
+
+    .btn-group-action {
+      background: #0284c7;
+      color: #ffffff;
+      flex: 1;
+      font-size: 0.95rem;
+    }
+    .btn-group-action:hover {
+      background: #0369a1;
+    }
     
     .btn-clear { background: #fce7f3; color: #be185d; border: 2px solid #fbcfe8; }
     .btn-clear:hover { background: #fbcfe8; }
@@ -292,7 +339,14 @@
   <!-- Mode 1: Interactive Chip Model -->
   <div id="chipSection">
     <div class="chip-arena" id="arena"></div>
+    
     <div class="btn-grid">
+      <!-- Multiplication Group Creation Section -->
+      <div class="mult-group-controls" id="groupControls" style="display: none;">
+        <button class="btn-group-action" onclick="addGroupOfChips(1)">➕ Add 1 Group of Solar ☀️</button>
+        <button class="btn-group-action" onclick="addGroupOfChips(-1)" style="background:#e11d48;">➕ Add 1 Group of Drain 🔌</button>
+      </div>
+
       <button class="btn-solar" onclick="addChip(1)">+1 Solar ☀️</button>
       <button class="btn-drain" onclick="addChip(-1)">-1 Drain 🔌</button>
       <button class="btn-clear" onclick="clearChips()">🗑️ Clear All</button>
@@ -318,7 +372,11 @@
   
   let targetVal = 0;
   let solutionVal = 0;
-  let currentChips = [];
+  let factorA = 0;
+  let factorB = 0;
+
+  // Stores structure: Array of Groups (e.g., [[1, 1], [-1, -1]]) or flat chips
+  let chipGroups = [];
 
   function getRandomInt(min, max) {
     let r = 0;
@@ -350,7 +408,15 @@
   function newQuestion() {
     document.getElementById('feedback').innerText = "";
     document.getElementById('directInput').value = "";
-    currentChips = [];
+    chipGroups = [];
+
+    // Show multiplication grouping buttons when in Multiplication Chip Model mode
+    const groupControls = document.getElementById('groupControls');
+    if (currentOp === 'mult' && currentType === 'chips') {
+      groupControls.style.display = 'flex';
+    } else {
+      groupControls.style.display = 'none';
+    }
 
     if (currentType === 'chips') {
       document.getElementById('chipSection').style.display = 'block';
@@ -375,8 +441,10 @@
       a = b * res;
       targetVal = Math.round(a / b);
     } else if (currentOp === 'mult') {
-      a = getRandomInt(-3, 3);
-      b = getRandomInt(-3, 3);
+      a = getRandomInt(1, 4); // Groups count
+      b = getRandomInt(-4, 4); // Size of group
+      factorA = a;
+      factorB = b;
       targetVal = a * b;
     } else if (currentOp === 'sub') {
       a = getRandomInt(-4, 4);
@@ -393,44 +461,91 @@
   }
 
   function addChip(val) {
-    currentChips.push(val);
+    // If empty or ungrouped, push into flat items
+    if (chipGroups.length === 0 || !Array.isArray(chipGroups[chipGroups.length - 1])) {
+      chipGroups.push(val);
+    } else {
+      chipGroups.push(val);
+    }
     renderArena();
   }
 
-  // Remove specific chip on click
-  function removeChip(index) {
-    currentChips.splice(index, 1);
+  // Adds a pre-built equal group matching the problem's group size (factorB)
+  function addGroupOfChips(chipTypeVal) {
+    const groupSize = Math.abs(factorB) || 2;
+    const newGroup = Array(groupSize).fill(chipTypeVal);
+    chipGroups.push(newGroup);
+    renderArena();
+  }
+
+  function removeSpecificChip(groupIndex, chipIndex) {
+    if (Array.isArray(chipGroups[groupIndex])) {
+      chipGroups[groupIndex].splice(chipIndex, 1);
+      if (chipGroups[groupIndex].length === 0) {
+        chipGroups.splice(groupIndex, 1);
+      }
+    } else {
+      chipGroups.splice(groupIndex, 1);
+    }
     renderArena();
   }
 
   function clearChips() {
-    currentChips = [];
+    chipGroups = [];
     renderArena();
   }
 
   function renderArena() {
     const arena = document.getElementById('arena');
     arena.innerHTML = "";
-    if (currentChips.length === 0) {
-      arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add +1 Solar or -1 Drain chips!</span>';
+
+    if (chipGroups.length === 0) {
+      arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add individual chips or create groups!</span>';
       return;
     }
-    
-    currentChips.forEach((c, index) => {
-      const chip = document.createElement('div');
-      chip.className = `chip ${c > 0 ? 'solar' : 'drain'}`;
-      chip.innerText = c > 0 ? '+1' : '-1';
-      chip.title = "Click to remove chip";
-      chip.onclick = () => removeChip(index);
-      arena.appendChild(chip);
+
+    chipGroups.forEach((item, gIdx) => {
+      if (Array.isArray(item)) {
+        // Render Group Box
+        const groupEl = document.createElement('div');
+        groupEl.className = 'chip-group';
+
+        const label = document.createElement('span');
+        label.className = 'chip-group-label';
+        label.innerText = `Group ${gIdx + 1}`;
+        groupEl.appendChild(label);
+
+        item.forEach((c, cIdx) => {
+          const chip = document.createElement('div');
+          chip.className = `chip ${c > 0 ? 'solar' : 'drain'}`;
+          chip.innerText = c > 0 ? '+1' : '-1';
+          chip.title = "Click to remove chip from group";
+          chip.onclick = () => removeSpecificChip(gIdx, cIdx);
+          groupEl.appendChild(chip);
+        });
+
+        arena.appendChild(groupEl);
+      } else {
+        // Render Single Ungrouped Chip
+        const chip = document.createElement('div');
+        chip.className = `chip ${item > 0 ? 'solar' : 'drain'}`;
+        chip.innerText = item > 0 ? '+1' : '-1';
+        chip.title = "Click to remove chip";
+        chip.onclick = () => removeSpecificChip(gIdx, null);
+        arena.appendChild(chip);
+      }
     });
   }
 
   function zapZeroPairs() {
-    let pos = currentChips.filter(c => c === 1).length;
-    let neg = currentChips.filter(c => c === -1).length;
+    let flatChips = chipGroups.flat();
+    let pos = flatChips.filter(c => c === 1).length;
+    let neg = flatChips.filter(c => c === -1).length;
+    
     if (pos > 0 && neg > 0) {
-      currentChips = [...Array(pos - 1).fill(1), ...Array(neg - 1).fill(-1)];
+      const remainingPos = pos - 1;
+      const remainingNeg = neg - 1;
+      chipGroups = [...Array(remainingPos).fill(1), ...Array(remainingNeg).fill(-1)];
       renderArena();
     }
   }
@@ -518,7 +633,8 @@
     let isCorrect = false;
 
     if (currentType === 'chips') {
-      const chipSum = currentChips.reduce((x, y) => x + y, 0);
+      const flatChips = chipGroups.flat();
+      const chipSum = flatChips.reduce((x, y) => x + y, 0);
       isCorrect = (chipSum === targetVal);
     } else {
       const inputVal = parseInt(document.getElementById('directInput').value);
