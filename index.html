@@ -13,12 +13,10 @@
       --text-main: #1e293b;
     }
     
-    /* Clean, Pure Bright Daytime Theme */
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
-      background-image: 
-        radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+      background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
       background-size: 24px 24px;
       color: var(--text-main);
       display: flex;
@@ -44,7 +42,6 @@
       transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    /* Correct Answer Bounce Animation */
     .game-box.correct-bounce {
       animation: celebrationPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-color: #10b981;
@@ -57,7 +54,6 @@
       100% { transform: scale(1); }
     }
     
-    /* Navigation Tabs */
     .tab-group {
       display: flex;
       gap: 8px;
@@ -95,7 +91,6 @@
       margin-bottom: 20px;
     }
 
-    /* Target Screen Display */
     .target-screen {
       background: #ffffff;
       border-radius: 18px;
@@ -109,7 +104,6 @@
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
     }
 
-    /* Chip Stage Arena */
     .chip-arena {
       background: #f8fafc;
       min-height: 120px;
@@ -144,7 +138,6 @@
       100% { transform: scale(1); }
     }
 
-    /* Direct & Missing Modes Input */
     .input-box {
       display: flex;
       flex-direction: column;
@@ -163,7 +156,6 @@
       outline: none;
     }
 
-    /* Action Buttons Grid */
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -209,7 +201,6 @@
       font-size: 1.25rem;
       font-weight: 800;
       margin-top: 14px;
-      transition: transform 0.2s ease;
     }
     .score-bar {
       margin-top: 16px;
@@ -229,7 +220,6 @@
       100% { transform: scale(1); }
     }
 
-    /* Confetti Particle Styling */
     .confetti-particle {
       position: fixed;
       width: 10px;
@@ -309,6 +299,10 @@
     return r;
   }
 
+  function formatNum(n) {
+    return n >= 0 ? `+${n}` : `${n}`;
+  }
+
   function setOperation(op, btn) {
     currentOp = op;
     if (btn) updateTabUI('opTabs', btn);
@@ -343,23 +337,32 @@
     }
   }
 
-  // --- 1. CHIP MODEL LOGIC ---
+  // --- 1. PROPER CHIP MODEL QUESTION LOGIC ---
   function setupChipQuestion() {
     let a, b;
+    const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
+    const symbol = symbolMap[currentOp];
+
     if (currentOp === 'div') {
       b = getRandomInt(-3, 3);
       let res = getRandomInt(-4, 4);
       a = b * res;
       targetVal = Math.round(a / b);
-    } else {
+    } else if (currentOp === 'mult') {
+      a = getRandomInt(-3, 3);
+      b = getRandomInt(-3, 3);
+      targetVal = a * b;
+    } else if (currentOp === 'sub') {
       a = getRandomInt(-4, 4);
       b = getRandomInt(-4, 4);
-      if (currentOp === 'add') targetVal = a + b;
-      if (currentOp === 'sub') targetVal = a - b;
-      if (currentOp === 'mult') targetVal = a * b;
+      targetVal = a - b;
+    } else { // Addition
+      a = getRandomInt(-5, 5);
+      b = getRandomInt(-5, 5);
+      targetVal = a + b;
     }
 
-    document.getElementById('targetDisplay').innerText = `BUILD GRID TARGET: ${targetVal >= 0 ? '+' + targetVal : targetVal}`;
+    document.getElementById('targetDisplay').innerText = `MODEL: (${formatNum(a)}) ${symbol} (${formatNum(b)}) = ?`;
     renderArena();
   }
 
@@ -423,7 +426,7 @@
       if (currentOp === 'mult') solutionVal = a * b;
     }
 
-    document.getElementById('targetDisplay').innerText = `SOLVE: (${a > 0 ? '+' + a : a}) ${symbol} (${b > 0 ? '+' + b : b}) = ?`;
+    document.getElementById('targetDisplay').innerText = `SOLVE: (${formatNum(a)}) ${symbol} (${formatNum(b)}) = ?`;
   }
 
   // --- 3. MISSING VALUE SETUP ---
@@ -434,34 +437,32 @@
       let res = getRandomInt(-6, 6);
       a = b * res;
       solutionVal = b;
-      document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) ÷ [ ? ] = ${Math.round(a / b)}`;
+      document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) ÷ [ ? ] = ${Math.round(a / b)}`;
     } else {
       a = getRandomInt(-10, 10);
       b = getRandomInt(-10, 10);
       solutionVal = b;
 
       if (currentOp === 'add') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) + [ ? ] = ${a + b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) + [ ? ] = ${a + b}`;
       } else if (currentOp === 'sub') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) - [ ? ] = ${a - b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) - [ ? ] = ${a - b}`;
       } else if (currentOp === 'mult') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) × [ ? ] = ${a * b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) × [ ? ] = ${a * b}`;
       }
     }
   }
 
-  // --- ANIMATIONS FOR CORRECT ANSWER ---
+  // --- CELEBRATION ANIMATIONS ---
   function triggerCelebration() {
     const gameBox = document.getElementById('gameBox');
     gameBox.classList.add('correct-bounce');
     setTimeout(() => gameBox.classList.remove('correct-bounce'), 600);
 
-    // Score Counter Animation
     const scoreEl = document.getElementById('score');
     scoreEl.classList.add('score-pop');
     setTimeout(() => scoreEl.classList.remove('score-pop'), 400);
 
-    // Spawn Confetti Particles
     const colors = ['#f59e0b', '#10b981', '#0284c7', '#ec4899', '#8b5cf6'];
     const rect = gameBox.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
