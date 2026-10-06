@@ -6,18 +6,21 @@
   <title>Integer Power Grid: Master Challenge</title>
   <style>
     :root {
-      --solar: #eab308;
-      --drain: #dc2626;
-      --accent: #16a34a;
-      --panel-bg: #18181b;
+      --solar: #f59e0b;
+      --drain: #ef4444;
+      --accent: #10b981;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
     }
     
-    /* Explicit Pure Charcoal Body Background - NO BLUE */
+    /* Clean, Pure Bright Daytime Theme */
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #09090b !important;
-      background-image: radial-gradient(circle at 50% 30%, #27272a 0%, #18181b 70%, #09090b 100%) !important;
-      color: #f4f4f5;
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -25,178 +28,233 @@
       margin: 0;
       padding: 15px;
       box-sizing: border-box;
+      overflow-x: hidden;
     }
 
     .game-box {
-      background: var(--panel-bg);
-      border: 2px solid #3f3f46;
-      border-radius: 24px;
-      padding: 24px;
+      background: var(--card-bg);
+      border: 2px solid #e2e8f0;
+      border-radius: 28px;
+      padding: 28px;
       max-width: 620px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      position: relative;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Correct Answer Bounce Animation */
+    .game-box.correct-bounce {
+      animation: celebrationPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-color: #10b981;
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.25);
+    }
+
+    @keyframes celebrationPulse {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.03); }
+      100% { transform: scale(1); }
     }
     
     /* Navigation Tabs */
     .tab-group {
       display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       justify-content: center;
       flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 9px 16px;
-      font-size: 0.85rem;
+      padding: 10px 18px;
+      font-size: 0.9rem;
       font-weight: 700;
-      border: 1px solid #3f3f46;
-      border-radius: 12px;
-      background: #27272a;
-      color: #a1a1aa;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #64748b;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     .tab-btn:hover {
-      color: #ffffff;
-      background: #3f3f46;
+      color: #0284c7;
+      background: #f0f9ff;
+      border-color: #bae6fd;
     }
     .tab-btn.active {
-      background: #059669;
+      background: #0284c7;
       color: #ffffff;
-      border-color: #10b981;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      border-color: #0284c7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
     }
     .sub-tabs {
-      background: #09090b;
+      background: #f1f5f9;
       padding: 6px;
-      border-radius: 14px;
-      border: 1px solid #27272a;
-      margin-bottom: 18px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 20px;
     }
 
+    /* Target Screen Display */
     .target-screen {
-      background: #27272a;
-      border-radius: 16px;
-      padding: 18px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
       font-size: 1.5rem;
       font-weight: 800;
       letter-spacing: 0.5px;
-      margin-bottom: 18px;
-      border: 2px solid var(--solar);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      color: #0284c7;
+      border: 2px solid #bae6fd;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
     }
 
-    /* Chip Stage UI */
+    /* Chip Stage Arena */
     .chip-arena {
-      background: #09090b;
-      min-height: 110px;
-      border-radius: 16px;
-      padding: 15px;
+      background: #f8fafc;
+      min-height: 120px;
+      border-radius: 20px;
+      padding: 16px;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       justify-content: center;
-      border: 2px dashed #3f3f46;
-      margin-bottom: 18px;
+      border: 3px dashed #cbd5e1;
+      margin-bottom: 20px;
     }
     .chip {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 800;
-      color: #000000;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-      animation: popIn 0.2s ease;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .chip.solar { background: var(--solar); }
-    .chip.drain { background: var(--drain); color: #ffffff; }
+    .chip.solar { background: #f59e0b; color: #ffffff; }
+    .chip.drain { background: #ef4444; color: #ffffff; }
 
     @keyframes popIn {
       0% { transform: scale(0); }
       100% { transform: scale(1); }
     }
 
-    /* Direct & Missing Modes UI */
+    /* Direct & Missing Modes Input */
     .input-box {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .input-box input {
-      padding: 14px;
-      font-size: 1.4rem;
+      padding: 16px;
+      font-size: 1.5rem;
       font-weight: 700;
-      border-radius: 12px;
-      border: 2px solid var(--accent);
-      background: #09090b;
-      color: #ffffff;
+      border-radius: 16px;
+      border: 3px solid #38bdf8;
+      background: #ffffff;
+      color: #0f172a;
       text-align: center;
       outline: none;
     }
 
+    /* Action Buttons Grid */
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
     button {
       font-family: inherit;
-      padding: 12px;
-      font-size: 0.95rem;
+      padding: 14px;
+      font-size: 1rem;
       font-weight: 700;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     button:active { transform: scale(0.96); }
     
-    .btn-solar { background: var(--solar); color: #000000; }
+    .btn-solar { background: #fef3c7; color: #b45309; border: 2px solid #fde047; }
     .btn-solar:hover { background: #fde047; }
     
-    .btn-drain { background: var(--drain); color: #ffffff; }
-    .btn-drain:hover { background: #ef4444; }
+    .btn-drain { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
+    .btn-drain:hover { background: #fca5a5; }
     
-    .btn-undo { background: #e11d48; color: #ffffff; }
-    .btn-undo:hover { background: #f43f5e; }
+    .btn-undo { background: #fce7f3; color: #be185d; border: 2px solid #fbcfe8; }
+    .btn-undo:hover { background: #fbcfe8; }
     
-    .btn-zap { background: #52525b; color: #ffffff; }
-    .btn-zap:hover { background: #71717a; }
+    .btn-zap { background: #f1f5f9; color: #475569; border: 2px solid #cbd5e1; }
+    .btn-zap:hover { background: #e2e8f0; }
     
     .btn-submit {
-      background: #16a34a;
+      background: #10b981;
       color: #ffffff;
       grid-column: span 2;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.2);
     }
     .btn-submit:hover {
-      background: #22c55e;
+      background: #059669;
     }
 
     .feedback {
-      min-height: 28px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-top: 12px;
+      min-height: 32px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-top: 14px;
+      transition: transform 0.2s ease;
     }
     .score-bar {
-      margin-top: 15px;
-      font-size: 1rem;
-      color: #d4d4d8;
+      margin-top: 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .score-pop {
+      display: inline-block;
+      animation: scorePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes scorePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5); color: #10b981; }
+      100% { transform: scale(1); }
+    }
+
+    /* Confetti Particle Styling */
+    .confetti-particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 999;
+      border-radius: 2px;
+      animation: confettiFall 1.2s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) rotate(720deg);
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="game-box">
+<div class="game-box" id="gameBox">
   <!-- Operation Selector Tabs -->
   <div class="tab-group" id="opTabs">
     <button class="tab-btn active" onclick="setOperation('add', this)">➕ Addition</button>
@@ -233,7 +291,7 @@
   </div>
 
   <div class="feedback" id="feedback"></div>
-  <div class="score-bar">Current Score: <b id="score" style="color:var(--solar);">0</b> PTS</div>
+  <div class="score-bar">Current Score: <b id="score" style="color:#0284c7;">0</b> PTS</div>
 </div>
 
 <script>
@@ -317,7 +375,7 @@
       document.getElementById('feedback').innerText = "";
     } else {
       const feedback = document.getElementById('feedback');
-      feedback.style.color = "#a1a1aa";
+      feedback.style.color = "#64748b";
       feedback.innerText = "No chips to undo!";
     }
   }
@@ -326,7 +384,7 @@
     const arena = document.getElementById('arena');
     arena.innerHTML = "";
     if (currentChips.length === 0) {
-      arena.innerHTML = '<span style="color:#71717a;">Add +1 Solar or -1 Drain chips!</span>';
+      arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add +1 Solar or -1 Drain chips!</span>';
       return;
     }
     currentChips.forEach(c => {
@@ -392,6 +450,43 @@
     }
   }
 
+  // --- ANIMATIONS FOR CORRECT ANSWER ---
+  function triggerCelebration() {
+    const gameBox = document.getElementById('gameBox');
+    gameBox.classList.add('correct-bounce');
+    setTimeout(() => gameBox.classList.remove('correct-bounce'), 600);
+
+    // Score Counter Animation
+    const scoreEl = document.getElementById('score');
+    scoreEl.classList.add('score-pop');
+    setTimeout(() => scoreEl.classList.remove('score-pop'), 400);
+
+    // Spawn Confetti Particles
+    const colors = ['#f59e0b', '#10b981', '#0284c7', '#ec4899', '#8b5cf6'];
+    const rect = gameBox.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 3;
+
+    for (let i = 0; i < 35; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-particle';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.left = centerX + 'px';
+      p.style.top = centerY + 'px';
+
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 80 + Math.random() * 150;
+      const dx = Math.cos(angle) * velocity + 'px';
+      const dy = (Math.sin(angle) * velocity - 50) + 'px';
+
+      p.style.setProperty('--dx', dx);
+      p.style.setProperty('--dy', dy);
+
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1200);
+    }
+  }
+
   // --- ANSWER CHECKING ---
   function checkAnswer() {
     const feedback = document.getElementById('feedback');
@@ -409,11 +504,13 @@
       score += 100;
       document.getElementById('score').innerText = score;
       feedback.style.color = '#10b981';
-      feedback.innerText = "⚡ Correct! +100 PTS";
-      setTimeout(newQuestion, 800);
+      feedback.innerText = "🌟 Great Job! +100 PTS";
+      
+      triggerCelebration();
+      setTimeout(newQuestion, 1000);
     } else {
       feedback.style.color = '#ef4444';
-      feedback.innerText = "❌ Short circuit! Try again.";
+      feedback.innerText = "❌ Try again!";
     }
   }
 
