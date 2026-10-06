@@ -34,7 +34,7 @@
       border: 2px solid #e2e8f0;
       border-radius: 28px;
       padding: 28px;
-      max-width: 680px;
+      max-width: 720px;
       width: 100%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
@@ -119,12 +119,14 @@
       position: relative;
     }
 
-    /* Visual Groups Container for Multiplication */
+    /* Visual Groups Container */
     .chip-group {
       border: 2px dashed #0284c7;
       background: #f0f9ff;
       border-radius: 16px;
-      padding: 10px 12px;
+      padding: 12px 14px;
+      min-width: 90px;
+      min-height: 60px;
       display: flex;
       gap: 8px;
       align-items: center;
@@ -214,7 +216,7 @@
       gap: 12px;
     }
     
-    .mult-group-controls {
+    .special-group-controls {
       grid-column: span 2;
       display: flex;
       gap: 10px;
@@ -251,6 +253,16 @@
     }
     .btn-group-action:hover {
       background: #0369a1;
+    }
+
+    .btn-div-action {
+      background: #8b5cf6;
+      color: #ffffff;
+      flex: 1;
+      font-size: 0.95rem;
+    }
+    .btn-div-action:hover {
+      background: #7c3aed;
     }
     
     .btn-clear { background: #fce7f3; color: #be185d; border: 2px solid #fbcfe8; }
@@ -341,10 +353,16 @@
     <div class="chip-arena" id="arena"></div>
     
     <div class="btn-grid">
-      <!-- Multiplication Group Creation Section -->
-      <div class="mult-group-controls" id="groupControls" style="display: none;">
+      <!-- Multiplication Group Controls -->
+      <div class="special-group-controls" id="multControls" style="display: none;">
         <button class="btn-group-action" onclick="addGroupOfChips(1)">➕ Add 1 Group of Solar ☀️</button>
         <button class="btn-group-action" onclick="addGroupOfChips(-1)" style="background:#e11d48;">➕ Add 1 Group of Drain 🔌</button>
+      </div>
+
+      <!-- Division Equal Sharing Containers Control -->
+      <div class="special-group-controls" id="divControls" style="display: none;">
+        <button class="btn-div-action" onclick="addDivisionGroupContainer()">📦 Add Equal Share Container</button>
+        <button class="btn-div-action" onclick="distributeChipsEqually()" style="background:#6366f1;">⚡ Auto-Distribute Chips</button>
       </div>
 
       <button class="btn-solar" onclick="addChip(1)">+1 Solar ☀️</button>
@@ -375,7 +393,7 @@
   let factorA = 0;
   let factorB = 0;
 
-  // Stores structure: Array of Groups (e.g., [[1, 1], [-1, -1]]) or flat chips
+  // Stores structure for groups or individual chips
   let chipGroups = [];
 
   function getRandomInt(min, max) {
@@ -410,13 +428,12 @@
     document.getElementById('directInput').value = "";
     chipGroups = [];
 
-    // Show multiplication grouping buttons when in Multiplication Chip Model mode
-    const groupControls = document.getElementById('groupControls');
-    if (currentOp === 'mult' && currentType === 'chips') {
-      groupControls.style.display = 'flex';
-    } else {
-      groupControls.style.display = 'none';
-    }
+    // Toggle special controls based on mode
+    const multControls = document.getElementById('multControls');
+    const divControls = document.getElementById('divControls');
+
+    multControls.style.display = (currentOp === 'mult' && currentType === 'chips') ? 'flex' : 'none';
+    divControls.style.display = (currentOp === 'div' && currentType === 'chips') ? 'flex' : 'none';
 
     if (currentType === 'chips') {
       document.getElementById('chipSection').style.display = 'block';
@@ -436,13 +453,15 @@
     const symbol = symbolMap[currentOp];
 
     if (currentOp === 'div') {
-      b = getRandomInt(-3, 3);
+      b = getRandomInt(1, 4); // Divisor (number of groups)
       let res = getRandomInt(-4, 4);
-      a = b * res;
-      targetVal = Math.round(a / b);
+      a = b * res; // Dividend
+      targetVal = res;
+      factorA = a;
+      factorB = b;
     } else if (currentOp === 'mult') {
-      a = getRandomInt(1, 4); // Groups count
-      b = getRandomInt(-4, 4); // Size of group
+      a = getRandomInt(1, 4);
+      b = getRandomInt(-4, 4);
       factorA = a;
       factorB = b;
       targetVal = a * b;
@@ -461,16 +480,11 @@
   }
 
   function addChip(val) {
-    // If empty or ungrouped, push into flat items
-    if (chipGroups.length === 0 || !Array.isArray(chipGroups[chipGroups.length - 1])) {
-      chipGroups.push(val);
-    } else {
-      chipGroups.push(val);
-    }
+    chipGroups.push(val);
     renderArena();
   }
 
-  // Adds a pre-built equal group matching the problem's group size (factorB)
+  // Multiplication: Add equal groups of factorB size
   function addGroupOfChips(chipTypeVal) {
     const groupSize = Math.abs(factorB) || 2;
     const newGroup = Array(groupSize).fill(chipTypeVal);
@@ -478,10 +492,35 @@
     renderArena();
   }
 
+  // Division: Create empty container groups for sharing
+  function addDivisionGroupContainer() {
+    chipGroups.push([]);
+    renderArena();
+  }
+
+  // Division: Auto-distribute loose chips into containers
+  function distributeChipsEqually() {
+    let flat = chipGroups.flat();
+    let containerCount = chipGroups.filter(item => Array.isArray(item)).length;
+    
+    if (containerCount === 0) {
+      containerCount = Math.abs(factorB);
+    }
+
+    let containers = Array.from({ length: containerCount }, () => []);
+    flat.forEach((chip, i) => {
+      containers[i % containerCount].push(chip);
+    });
+
+    chipGroups = containers;
+    renderArena();
+  }
+
   function removeSpecificChip(groupIndex, chipIndex) {
     if (Array.isArray(chipGroups[groupIndex])) {
-      chipGroups[groupIndex].splice(chipIndex, 1);
-      if (chipGroups[groupIndex].length === 0) {
+      if (chipIndex !== null) {
+        chipGroups[groupIndex].splice(chipIndex, 1);
+      } else {
         chipGroups.splice(groupIndex, 1);
       }
     } else {
@@ -500,33 +539,39 @@
     arena.innerHTML = "";
 
     if (chipGroups.length === 0) {
-      arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add individual chips or create groups!</span>';
+      arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add chips, groups, or equal share containers!</span>';
       return;
     }
 
     chipGroups.forEach((item, gIdx) => {
       if (Array.isArray(item)) {
-        // Render Group Box
         const groupEl = document.createElement('div');
         groupEl.className = 'chip-group';
 
         const label = document.createElement('span');
         label.className = 'chip-group-label';
-        label.innerText = `Group ${gIdx + 1}`;
+        label.innerText = `Container ${gIdx + 1}`;
         groupEl.appendChild(label);
 
-        item.forEach((c, cIdx) => {
-          const chip = document.createElement('div');
-          chip.className = `chip ${c > 0 ? 'solar' : 'drain'}`;
-          chip.innerText = c > 0 ? '+1' : '-1';
-          chip.title = "Click to remove chip from group";
-          chip.onclick = () => removeSpecificChip(gIdx, cIdx);
-          groupEl.appendChild(chip);
-        });
+        if (item.length === 0) {
+          const emptyText = document.createElement('span');
+          emptyText.style.color = '#94a3b8';
+          emptyText.style.fontSize = '0.75rem';
+          emptyText.innerText = 'Empty';
+          groupEl.appendChild(emptyText);
+        } else {
+          item.forEach((c, cIdx) => {
+            const chip = document.createElement('div');
+            chip.className = `chip ${c > 0 ? 'solar' : 'drain'}`;
+            chip.innerText = c > 0 ? '+1' : '-1';
+            chip.title = "Click to remove chip";
+            chip.onclick = () => removeSpecificChip(gIdx, cIdx);
+            groupEl.appendChild(chip);
+          });
+        }
 
         arena.appendChild(groupEl);
       } else {
-        // Render Single Ungrouped Chip
         const chip = document.createElement('div');
         chip.className = `chip ${item > 0 ? 'solar' : 'drain'}`;
         chip.innerText = item > 0 ? '+1' : '-1';
