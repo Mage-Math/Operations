@@ -95,13 +95,26 @@
       background: #ffffff;
       border-radius: 18px;
       padding: 20px;
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
       margin-bottom: 20px;
-      color: #0284c7;
       border: 2px solid #bae6fd;
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+    }
+
+    .main-math {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0284c7;
+    }
+
+    .relate-math {
+      margin-top: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #8b5cf6;
+      background: #f3e8ff;
+      padding: 6px 12px;
+      border-radius: 10px;
+      display: inline-block;
     }
 
     .chip-arena {
@@ -346,7 +359,10 @@
     <button class="tab-btn" onclick="setQuestionType('missing', this)">❓ Find Missing Value</button>
   </div>
 
-  <div class="target-screen" id="targetDisplay">Loading...</div>
+  <div class="target-screen">
+    <div class="main-math" id="targetDisplay">Loading...</div>
+    <div class="relate-math" id="relateDisplay" style="display: none;"></div>
+  </div>
 
   <!-- Mode 1: Interactive Chip Model -->
   <div id="chipSection">
@@ -361,7 +377,7 @@
 
       <!-- Division Equal Sharing Containers Control -->
       <div class="special-group-controls" id="divControls" style="display: none;">
-        <button class="btn-div-action" onclick="addDivisionGroupContainer()">📦 Add Equal Share Container</button>
+        <button class="btn-div-action" onclick="addDivisionGroupContainer()">📦 Add Share Container</button>
         <button class="btn-div-action" onclick="distributeChipsEqually()" style="background:#6366f1;">⚡ Auto-Distribute Chips</button>
       </div>
 
@@ -393,7 +409,6 @@
   let factorA = 0;
   let factorB = 0;
 
-  // Stores structure for groups or individual chips
   let chipGroups = [];
 
   function getRandomInt(min, max) {
@@ -428,7 +443,6 @@
     document.getElementById('directInput').value = "";
     chipGroups = [];
 
-    // Toggle special controls based on mode
     const multControls = document.getElementById('multControls');
     const divControls = document.getElementById('divControls');
 
@@ -451,28 +465,35 @@
     let a, b;
     const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
     const symbol = symbolMap[currentOp];
+    const relateEl = document.getElementById('relateDisplay');
 
     if (currentOp === 'div') {
-      b = getRandomInt(1, 4); // Divisor (number of groups)
+      b = getRandomInt(1, 4); 
       let res = getRandomInt(-4, 4);
-      a = b * res; // Dividend
+      a = b * res; 
       targetVal = res;
       factorA = a;
       factorB = b;
-    } else if (currentOp === 'mult') {
-      a = getRandomInt(1, 4);
-      b = getRandomInt(-4, 4);
-      factorA = a;
-      factorB = b;
-      targetVal = a * b;
-    } else if (currentOp === 'sub') {
-      a = getRandomInt(-4, 4);
-      b = getRandomInt(-4, 4);
-      targetVal = a - b;
+
+      relateEl.style.display = 'inline-block';
+      relateEl.innerText = `💡 Relate: ${formatNum(b)} × [ ? ] = ${formatNum(a)}`;
     } else {
-      a = getRandomInt(-5, 5);
-      b = getRandomInt(-5, 5);
-      targetVal = a + b;
+      relateEl.style.display = 'none';
+      if (currentOp === 'mult') {
+        a = getRandomInt(1, 4);
+        b = getRandomInt(-4, 4);
+        factorA = a;
+        factorB = b;
+        targetVal = a * b;
+      } else if (currentOp === 'sub') {
+        a = getRandomInt(-4, 4);
+        b = getRandomInt(-4, 4);
+        targetVal = a - b;
+      } else {
+        a = getRandomInt(-5, 5);
+        b = getRandomInt(-5, 5);
+        targetVal = a + b;
+      }
     }
 
     document.getElementById('targetDisplay').innerText = `MODEL: ${formatNum(a)} ${symbol} ${formatNum(b)} = ?`;
@@ -484,7 +505,6 @@
     renderArena();
   }
 
-  // Multiplication: Add equal groups of factorB size
   function addGroupOfChips(chipTypeVal) {
     const groupSize = Math.abs(factorB) || 2;
     const newGroup = Array(groupSize).fill(chipTypeVal);
@@ -492,13 +512,11 @@
     renderArena();
   }
 
-  // Division: Create empty container groups for sharing
   function addDivisionGroupContainer() {
     chipGroups.push([]);
     renderArena();
   }
 
-  // Division: Auto-distribute loose chips into containers
   function distributeChipsEqually() {
     let flat = chipGroups.flat();
     let containerCount = chipGroups.filter(item => Array.isArray(item)).length;
@@ -599,13 +617,18 @@
     let a, b;
     const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
     const symbol = symbolMap[currentOp];
+    const relateEl = document.getElementById('relateDisplay');
 
     if (currentOp === 'div') {
       b = getRandomInt(-5, 5);
       let res = getRandomInt(-6, 6);
       a = b * res;
       solutionVal = Math.round(a / b);
+
+      relateEl.style.display = 'inline-block';
+      relateEl.innerText = `💡 Relate: ${formatNum(b)} × [ ? ] = ${formatNum(a)}`;
     } else {
+      relateEl.style.display = 'none';
       a = getRandomInt(-10, 10);
       b = getRandomInt(-10, 10);
       if (currentOp === 'add') solutionVal = a + b;
@@ -618,6 +641,9 @@
 
   function setupMissingQuestion() {
     let a, b;
+    const relateEl = document.getElementById('relateDisplay');
+    relateEl.style.display = 'none';
+
     if (currentOp === 'div') {
       b = getRandomInt(-5, 5);
       let res = getRandomInt(-6, 6);
