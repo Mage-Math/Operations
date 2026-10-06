@@ -116,10 +116,13 @@
       justify-content: center;
       border: 3px dashed #cbd5e1;
       margin-bottom: 20px;
+      position: relative;
     }
+
+    /* Interactive Clickable Chips */
     .chip {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -129,9 +132,33 @@
       color: #ffffff;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
-    .chip.solar { background: #f59e0b; color: #ffffff; }
-    .chip.drain { background: #ef4444; color: #ffffff; }
+
+    .chip:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
+    }
+
+    .chip:hover::after {
+      content: '✖';
+      position: absolute;
+      font-size: 0.8rem;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.5);
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chip.solar { background: #f59e0b; }
+    .chip.drain { background: #ef4444; }
 
     @keyframes popIn {
       0% { transform: scale(0); }
@@ -179,8 +206,8 @@
     .btn-drain { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
     .btn-drain:hover { background: #fca5a5; }
     
-    .btn-undo { background: #fce7f3; color: #be185d; border: 2px solid #fbcfe8; }
-    .btn-undo:hover { background: #fbcfe8; }
+    .btn-clear { background: #fce7f3; color: #be185d; border: 2px solid #fbcfe8; }
+    .btn-clear:hover { background: #fbcfe8; }
     
     .btn-zap { background: #f1f5f9; color: #475569; border: 2px solid #cbd5e1; }
     .btn-zap:hover { background: #e2e8f0; }
@@ -262,13 +289,13 @@
 
   <div class="target-screen" id="targetDisplay">Loading...</div>
 
-  <!-- Mode 1: Chip Model -->
+  <!-- Mode 1: Interactive Chip Model -->
   <div id="chipSection">
     <div class="chip-arena" id="arena"></div>
     <div class="btn-grid">
       <button class="btn-solar" onclick="addChip(1)">+1 Solar ☀️</button>
       <button class="btn-drain" onclick="addChip(-1)">-1 Drain 🔌</button>
-      <button class="btn-undo" onclick="undoChip()">↩️ Undo Chip</button>
+      <button class="btn-clear" onclick="clearChips()">🗑️ Clear All</button>
       <button class="btn-zap" onclick="zapZeroPairs()">💥 Zap Zero Pairs</button>
       <button class="btn-submit" onclick="checkAnswer()">⚡ SUBMIT CHIPS</button>
     </div>
@@ -299,7 +326,6 @@
     return r;
   }
 
-  // Format numbers without leading '+' sign for positive integers
   function formatNum(n) {
     return n < 0 ? `(${n})` : `${n}`;
   }
@@ -338,7 +364,6 @@
     }
   }
 
-  // --- 1. CHIP MODEL QUESTION LOGIC ---
   function setupChipQuestion() {
     let a, b;
     const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
@@ -357,7 +382,7 @@
       a = getRandomInt(-4, 4);
       b = getRandomInt(-4, 4);
       targetVal = a - b;
-    } else { // Addition
+    } else {
       a = getRandomInt(-5, 5);
       b = getRandomInt(-5, 5);
       targetVal = a + b;
@@ -372,16 +397,15 @@
     renderArena();
   }
 
-  function undoChip() {
-    if (currentChips.length > 0) {
-      currentChips.pop();
-      renderArena();
-      document.getElementById('feedback').innerText = "";
-    } else {
-      const feedback = document.getElementById('feedback');
-      feedback.style.color = "#64748b";
-      feedback.innerText = "No chips to undo!";
-    }
+  // Remove specific chip on click
+  function removeChip(index) {
+    currentChips.splice(index, 1);
+    renderArena();
+  }
+
+  function clearChips() {
+    currentChips = [];
+    renderArena();
   }
 
   function renderArena() {
@@ -391,10 +415,13 @@
       arena.innerHTML = '<span style="color:#94a3b8; font-weight:600;">Add +1 Solar or -1 Drain chips!</span>';
       return;
     }
-    currentChips.forEach(c => {
+    
+    currentChips.forEach((c, index) => {
       const chip = document.createElement('div');
       chip.className = `chip ${c > 0 ? 'solar' : 'drain'}`;
       chip.innerText = c > 0 ? '+1' : '-1';
+      chip.title = "Click to remove chip";
+      chip.onclick = () => removeChip(index);
       arena.appendChild(chip);
     });
   }
@@ -408,7 +435,6 @@
     }
   }
 
-  // --- 2. DIRECT QUESTION SETUP ---
   function setupDirectQuestion() {
     let a, b;
     const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
@@ -430,7 +456,6 @@
     document.getElementById('targetDisplay').innerText = `SOLVE: ${formatNum(a)} ${symbol} ${formatNum(b)} = ?`;
   }
 
-  // --- 3. MISSING VALUE SETUP ---
   function setupMissingQuestion() {
     let a, b;
     if (currentOp === 'div') {
@@ -454,7 +479,6 @@
     }
   }
 
-  // --- CELEBRATION ANIMATIONS ---
   function triggerCelebration() {
     const gameBox = document.getElementById('gameBox');
     gameBox.classList.add('correct-bounce');
@@ -489,7 +513,6 @@
     }
   }
 
-  // --- ANSWER CHECKING ---
   function checkAnswer() {
     const feedback = document.getElementById('feedback');
     let isCorrect = false;
