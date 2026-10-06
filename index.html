@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid Balance: Integer Electricity Challenge</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --pos: #22c55e;
+      --neg: #ef4444;
+      --accent: #3b82f6;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .game-container {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 { margin-top: 0; font-size: 1.8rem; }
+    .rules {
+      font-size: 0.9rem;
+      background: #334155;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .rules span.pos { color: var(--pos); font-weight: bold; }
+    .rules span.neg { color: var(--neg); font-weight: bold; }
+    .card-grid {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .card {
+      background: #334155;
+      border: 2px solid #475569;
+      border-radius: 8px;
+      padding: 15px 10px;
+      flex: 1;
+    }
+    .card.pos { border-color: var(--pos); }
+    .card.neg { border-color: var(--neg); }
+    .card-val { font-size: 1.5rem; font-weight: bold; }
+    .card.pos .card-val { color: var(--pos); }
+    .card.neg .card-val { color: var(--neg); }
+    .card-label { font-size: 0.8rem; color: #94a3b8; margin-top: 5px; }
+    .target-box {
+      font-size: 1.2rem;
+      margin: 15px 0;
+      padding: 10px;
+      background: #0284c7;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      border: none;
+      text-align: center;
+    }
+    button {
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background-color: #2563eb; }
+    .feedback {
+      margin-top: 15px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+    .score-board {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>⚡ Grid Balance: Integer Challenge</h1>
+  
+  <div class="rules">
+    • <span class="pos">Positive Integers (+)</span>: Solar Credits / Power Input<br>
+    • <span class="neg">Negative Integers (-)</span>: Appliance Debits / Power Draws<br>
+    • Combine all 3 values using <b>+</b>, <b>-</b>, or <b>*</b> to hit the Target Bill Balance!
+  </div>
+
+  <div class="target-box" id="targetDisplay">Target Bill Balance: 0 kWh</div>
+
+  <div class="card-grid" id="cardContainer">
+    <!-- Cards rendered dynamically -->
+  </div>
+
+  <div class="input-section">
+    <input type="text" id="expressionInput" placeholder="e.g. (-4 * 3) + 5" />
+    <button onclick="checkAnswer()">Submit Calculation</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+  <div class="score-board">Total Score: <span id="score">0</span></div>
+  <button style="margin-top:15px; background-color:#475569;" onclick="nextRound()">Next Round</button>
+</div>
+
+<script>
+  let numbers = [];
+  let target = 0;
+  let score = 0;
+
+  const applianceLabels = [
+    { name: "Solar Panel", type: "pos" },
+    { name: "Grid Feed-In", type: "pos" },
+    { name: "AC Unit", type: "neg" },
+    { name: "EV Charger", type: "neg" },
+    { name: "Refrigerator", type: "neg" }
+  ];
+
+  function getRandomInt(min, max) {
+    let res = 0;
+    while (res === 0) { // Exclude 0 for integer clarity
+      res = Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    return res;
+  }
+
+  function nextRound() {
+    document.getElementById('feedback').innerText = "";
+    document.getElementById('expressionInput').value = "";
+    
+    // Generate 3 non-zero integer values between -10 and 10
+    numbers = [getRandomInt(-10, 10), getRandomInt(-10, 10), getRandomInt(-10, 10)];
+    
+    // Generate a simple achievable target using random ops
+    const op1 = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+    const op2 = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+    
+    // Calculate sample target
+    let step1 = eval(`${numbers[0]} ${op1} ${numbers[1]}`);
+    target = eval(`${step1} ${op2} ${numbers[2]}`);
+
+    renderUI();
+  }
+
+  function renderUI() {
+    document.getElementById('targetDisplay').innerText = `Target Bill Balance: ${target} kWh ($${target})`;
+    const container = document.getElementById('cardContainer');
+    container.innerHTML = "";
+
+    numbers.forEach((num, idx) => {
+      const isPos = num > 0;
+      const card = document.createElement('div');
+      card.className = `card ${isPos ? 'pos' : 'neg'}`;
+      
+      const label = isPos ? 
+        applianceLabels[0].name : 
+        applianceLabels[Math.floor(Math.random() * (applianceLabels.length - 2)) + 2].name;
+
+      card.innerHTML = `
+        <div class="card-val">${isPos ? '+' + num : num}</div>
+        <div class="card-label">${label}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function checkAnswer() {
+    const input = document.getElementById('expressionInput').value.trim();
+    const feedback = document.getElementById('feedback');
+
+    try {
+      // Validate that only allowed characters are used
+      if (/[^0-9+\-*() \s]/g.test(input.replace(/--/g, ''))) {
+        feedback.style.color = "var(--neg)";
+        feedback.innerText = "Invalid input! Use only numbers, +, -, *, and parentheses.";
+        return;
+      }
+
+      // Check if all 3 numbers are present in expression
+      const extractedNumbers = input.match(/-?\d+/g)?.map(Number) || [];
+      const sortedOriginal = [...numbers].sort((a,b) => a - b);
+      const sortedExtracted = [...extractedNumbers].sort((a,b) => a - b);
+
+      if (JSON.stringify(sortedOriginal) !== JSON.stringify(sortedExtracted)) {
+        feedback.style.color = "var(--neg)";
+        feedback.innerText = `You must use exactly these numbers once: ${numbers.join(', ')}`;
+        return;
+      }
+
+      // Evaluate result
+      const result = Function(`'use strict'; return (${input})`)();
+
+      if (result === target) {
+        feedback.style.color = "var(--pos)";
+        feedback.innerText = "⚡ Success! Grid balanced correctly!";
+        score += 10;
+        document.getElementById('score').innerText = score;
+      } else {
+        feedback.style.color = "var(--neg)";
+        feedback.innerText = `Result was ${result}. Target is ${target}. Try again!`;
+      }
+    } catch (e) {
+      feedback.style.color = "var(--neg)";
+      feedback.innerText = "Syntax Error in mathematical expression.";
+    }
+  }
+
+  // Start initial game
+  nextRound();
+</script>
+</body>
+</html>
