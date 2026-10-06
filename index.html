@@ -299,8 +299,9 @@
     return r;
   }
 
+  // Format numbers without leading '+' sign for positive integers
   function formatNum(n) {
-    return n >= 0 ? `+${n}` : `${n}`;
+    return n < 0 ? `(${n})` : `${n}`;
   }
 
   function setOperation(op, btn) {
@@ -337,7 +338,7 @@
     }
   }
 
-  // --- 1. PROPER CHIP MODEL QUESTION LOGIC ---
+  // --- 1. CHIP MODEL QUESTION LOGIC ---
   function setupChipQuestion() {
     let a, b;
     const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
@@ -362,7 +363,7 @@
       targetVal = a + b;
     }
 
-    document.getElementById('targetDisplay').innerText = `MODEL: (${formatNum(a)}) ${symbol} (${formatNum(b)}) = ?`;
+    document.getElementById('targetDisplay').innerText = `MODEL: ${formatNum(a)} ${symbol} ${formatNum(b)} = ?`;
     renderArena();
   }
 
@@ -426,7 +427,7 @@
       if (currentOp === 'mult') solutionVal = a * b;
     }
 
-    document.getElementById('targetDisplay').innerText = `SOLVE: (${formatNum(a)}) ${symbol} (${formatNum(b)}) = ?`;
+    document.getElementById('targetDisplay').innerText = `SOLVE: ${formatNum(a)} ${symbol} ${formatNum(b)} = ?`;
   }
 
   // --- 3. MISSING VALUE SETUP ---
@@ -437,18 +438,18 @@
       let res = getRandomInt(-6, 6);
       a = b * res;
       solutionVal = b;
-      document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) ÷ [ ? ] = ${Math.round(a / b)}`;
+      document.getElementById('targetDisplay').innerText = `FIND MISSING: ${formatNum(a)} ÷ [ ? ] = ${Math.round(a / b)}`;
     } else {
       a = getRandomInt(-10, 10);
       b = getRandomInt(-10, 10);
       solutionVal = b;
 
       if (currentOp === 'add') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) + [ ? ] = ${a + b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: ${formatNum(a)} + [ ? ] = ${a + b}`;
       } else if (currentOp === 'sub') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) - [ ? ] = ${a - b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: ${formatNum(a)} - [ ? ] = ${a - b}`;
       } else if (currentOp === 'mult') {
-        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${formatNum(a)}) × [ ? ] = ${a * b}`;
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: ${formatNum(a)} × [ ? ] = ${a * b}`;
       }
     }
   }
