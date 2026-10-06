@@ -6,18 +6,18 @@
   <title>Integer Power Grid: Master Challenge</title>
   <style>
     :root {
-      --solar: #f59e0b;
-      --drain: #ef4444;
-      --accent: #06b6d4;
-      --active-tab: #3b82f6;
-      --panel-bg: rgba(22, 31, 50, 0.75);
+      --solar: #eab308;
+      --drain: #dc2626;
+      --accent: #16a34a;
+      --panel-bg: #18181b;
     }
     
+    /* Explicit Pure Charcoal Body Background - NO BLUE */
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      /* Dynamic glowing radial backdrop */
-      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
-      color: #f8fafc;
+      background-color: #09090b !important;
+      background-image: radial-gradient(circle at 50% 30%, #27272a 0%, #18181b 70%, #09090b 100%) !important;
+      color: #f4f4f5;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -29,15 +29,13 @@
 
     .game-box {
       background: var(--panel-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 2px solid #3f3f46;
       border-radius: 24px;
       padding: 24px;
-      max-width: 600px;
+      max-width: 620px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(6, 182, 212, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
     }
     
     /* Navigation Tabs */
@@ -52,47 +50,47 @@
       padding: 9px 16px;
       font-size: 0.85rem;
       font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid #3f3f46;
       border-radius: 12px;
-      background: rgba(15, 23, 42, 0.8);
-      color: #94a3b8;
+      background: #27272a;
+      color: #a1a1aa;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
     }
     .tab-btn:hover {
-      color: #f8fafc;
-      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      background: #3f3f46;
     }
     .tab-btn.active {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-      border-color: #60a5fa;
-      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+      background: #059669;
+      color: #ffffff;
+      border-color: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
     }
     .sub-tabs {
-      background: rgba(15, 23, 42, 0.6);
+      background: #09090b;
       padding: 6px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid #27272a;
       margin-bottom: 18px;
     }
 
     .target-screen {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(15, 23, 42, 0.9));
+      background: #27272a;
       border-radius: 16px;
       padding: 18px;
       font-size: 1.5rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       margin-bottom: 18px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.2);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      border: 2px solid var(--solar);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     /* Chip Stage UI */
     .chip-arena {
-      background: rgba(11, 17, 32, 0.8);
+      background: #09090b;
       min-height: 110px;
       border-radius: 16px;
       padding: 15px;
@@ -101,24 +99,24 @@
       gap: 10px;
       align-items: center;
       justify-content: center;
-      border: 2px dashed rgba(51, 65, 85, 0.8);
+      border: 2px dashed #3f3f46;
       margin-bottom: 18px;
     }
     .chip {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 0.95rem;
       font-weight: 800;
-      color: #000;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      color: #000000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      animation: popIn 0.2s ease;
     }
-    .chip.solar { background: var(--solar); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
-    .chip.drain { background: var(--drain); color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+    .chip.solar { background: var(--solar); }
+    .chip.drain { background: var(--drain); color: #ffffff; }
 
     @keyframes popIn {
       0% { transform: scale(0); }
@@ -138,11 +136,10 @@
       font-weight: 700;
       border-radius: 12px;
       border: 2px solid var(--accent);
-      background: rgba(15, 23, 42, 0.9);
-      color: white;
+      background: #09090b;
+      color: #ffffff;
       text-align: center;
       outline: none;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
     }
 
     .btn-grid {
@@ -162,27 +159,26 @@
     }
     button:active { transform: scale(0.96); }
     
-    .btn-solar { background: var(--solar); color: black; }
-    .btn-solar:hover { background: #fcd34d; }
+    .btn-solar { background: var(--solar); color: #000000; }
+    .btn-solar:hover { background: #fde047; }
     
-    .btn-drain { background: var(--drain); color: white; }
-    .btn-drain:hover { background: #f87171; }
+    .btn-drain { background: var(--drain); color: #ffffff; }
+    .btn-drain:hover { background: #ef4444; }
     
-    .btn-undo { background: #e11d48; color: white; }
+    .btn-undo { background: #e11d48; color: #ffffff; }
     .btn-undo:hover { background: #f43f5e; }
     
-    .btn-zap { background: #64748b; color: white; }
-    .btn-zap:hover { background: #94a3b8; }
+    .btn-zap { background: #52525b; color: #ffffff; }
+    .btn-zap:hover { background: #71717a; }
     
     .btn-submit {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
+      background: #16a34a;
+      color: #ffffff;
       grid-column: span 2;
       font-size: 1.1rem;
-      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
     }
     .btn-submit:hover {
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+      background: #22c55e;
     }
 
     .feedback {
@@ -194,7 +190,7 @@
     .score-bar {
       margin-top: 15px;
       font-size: 1rem;
-      color: #cbd5e1;
+      color: #d4d4d8;
     }
   </style>
 </head>
@@ -203,16 +199,17 @@
 <div class="game-box">
   <!-- Operation Selector Tabs -->
   <div class="tab-group" id="opTabs">
-    <button class="tab-btn active" onclick="setOperation('add')">➕ Addition</button>
-    <button class="tab-btn" onclick="setOperation('sub')">➖ Subtraction</button>
-    <button class="tab-btn" onclick="setOperation('mult')">✖️️ Multiplication</button>
+    <button class="tab-btn active" onclick="setOperation('add', this)">➕ Addition</button>
+    <button class="tab-btn" onclick="setOperation('sub', this)">➖ Subtraction</button>
+    <button class="tab-btn" onclick="setOperation('mult', this)">✖ Multiplication</button>
+    <button class="tab-btn" onclick="setOperation('div', this)">➗ Division</button>
   </div>
 
   <!-- Question Type Sub-Tabs -->
   <div class="tab-group sub-tabs" id="typeTabs">
-    <button class="tab-btn active" onclick="setQuestionType('chips')">🟡 Chip Model</button>
-    <button class="tab-btn" onclick="setQuestionType('direct')">⚡ Direct Solves</button>
-    <button class="tab-btn" onclick="setQuestionType('missing')">❓ Find Missing Value</button>
+    <button class="tab-btn active" onclick="setQuestionType('chips', this)">🟡 Chip Model</button>
+    <button class="tab-btn" onclick="setQuestionType('direct', this)">⚡ Direct Solves</button>
+    <button class="tab-btn" onclick="setQuestionType('missing', this)">❓ Find Missing Value</button>
   </div>
 
   <div class="target-screen" id="targetDisplay">Loading...</div>
@@ -254,15 +251,15 @@
     return r;
   }
 
-  function setOperation(op) {
+  function setOperation(op, btn) {
     currentOp = op;
-    updateTabUI('opTabs', event.target);
+    if (btn) updateTabUI('opTabs', btn);
     newQuestion();
   }
 
-  function setQuestionType(type) {
+  function setQuestionType(type, btn) {
     currentType = type;
-    updateTabUI('typeTabs', event.target);
+    if (btn) updateTabUI('typeTabs', btn);
     newQuestion();
   }
 
@@ -290,12 +287,19 @@
 
   // --- 1. CHIP MODEL LOGIC ---
   function setupChipQuestion() {
-    let a = getRandomInt(-4, 4);
-    let b = getRandomInt(-4, 4);
-
-    if (currentOp === 'add') targetVal = a + b;
-    if (currentOp === 'sub') targetVal = a - b;
-    if (currentOp === 'mult') targetVal = a * b;
+    let a, b;
+    if (currentOp === 'div') {
+      b = getRandomInt(-3, 3);
+      let res = getRandomInt(-4, 4);
+      a = b * res;
+      targetVal = Math.round(a / b);
+    } else {
+      a = getRandomInt(-4, 4);
+      b = getRandomInt(-4, 4);
+      if (currentOp === 'add') targetVal = a + b;
+      if (currentOp === 'sub') targetVal = a - b;
+      if (currentOp === 'mult') targetVal = a * b;
+    }
 
     document.getElementById('targetDisplay').innerText = `BUILD GRID TARGET: ${targetVal >= 0 ? '+' + targetVal : targetVal}`;
     renderArena();
@@ -313,7 +317,7 @@
       document.getElementById('feedback').innerText = "";
     } else {
       const feedback = document.getElementById('feedback');
-      feedback.style.color = "#94a3b8";
+      feedback.style.color = "#a1a1aa";
       feedback.innerText = "No chips to undo!";
     }
   }
@@ -322,7 +326,7 @@
     const arena = document.getElementById('arena');
     arena.innerHTML = "";
     if (currentChips.length === 0) {
-      arena.innerHTML = '<span style="color:#64748b;">Add +1 Solar or -1 Drain chips!</span>';
+      arena.innerHTML = '<span style="color:#71717a;">Add +1 Solar or -1 Drain chips!</span>';
       return;
     }
     currentChips.forEach(c => {
@@ -344,22 +348,78 @@
 
   // --- 2. DIRECT QUESTION SETUP ---
   function setupDirectQuestion() {
-    let a = getRandomInt(-10, 10);
-    let b = getRandomInt(-10, 10);
-    const symbol = currentOp === 'add' ? '+' : (currentOp === 'sub' ? '-' : '×');
+    let a, b;
+    const symbolMap = { add: '+', sub: '-', mult: '×', div: '÷' };
+    const symbol = symbolMap[currentOp];
 
-    if (currentOp === 'add') solutionVal = a + b;
-    if (currentOp === 'sub') solutionVal = a - b;
-    if (currentOp === 'mult') solutionVal = a * b;
+    if (currentOp === 'div') {
+      b = getRandomInt(-5, 5);
+      let res = getRandomInt(-6, 6);
+      a = b * res;
+      solutionVal = Math.round(a / b);
+    } else {
+      a = getRandomInt(-10, 10);
+      b = getRandomInt(-10, 10);
+      if (currentOp === 'add') solutionVal = a + b;
+      if (currentOp === 'sub') solutionVal = a - b;
+      if (currentOp === 'mult') solutionVal = a * b;
+    }
 
     document.getElementById('targetDisplay').innerText = `SOLVE: (${a > 0 ? '+' + a : a}) ${symbol} (${b > 0 ? '+' + b : b}) = ?`;
   }
 
   // --- 3. MISSING VALUE SETUP ---
   function setupMissingQuestion() {
-    let a = getRandomInt(-10, 10);
-    let b = getRandomInt(-10, 10);
-
-    if (currentOp === 'add') {
+    let a, b;
+    if (currentOp === 'div') {
+      b = getRandomInt(-5, 5);
+      let res = getRandomInt(-6, 6);
+      a = b * res;
       solutionVal = b;
-      document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a >
+      document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) ÷ [ ? ] = ${Math.round(a / b)}`;
+    } else {
+      a = getRandomInt(-10, 10);
+      b = getRandomInt(-10, 10);
+      solutionVal = b;
+
+      if (currentOp === 'add') {
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) + [ ? ] = ${a + b}`;
+      } else if (currentOp === 'sub') {
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) - [ ? ] = ${a - b}`;
+      } else if (currentOp === 'mult') {
+        document.getElementById('targetDisplay').innerText = `FIND MISSING: (${a > 0 ? '+' + a : a}) × [ ? ] = ${a * b}`;
+      }
+    }
+  }
+
+  // --- ANSWER CHECKING ---
+  function checkAnswer() {
+    const feedback = document.getElementById('feedback');
+    let isCorrect = false;
+
+    if (currentType === 'chips') {
+      const chipSum = currentChips.reduce((x, y) => x + y, 0);
+      isCorrect = (chipSum === targetVal);
+    } else {
+      const inputVal = parseInt(document.getElementById('directInput').value);
+      isCorrect = (inputVal === solutionVal);
+    }
+
+    if (isCorrect) {
+      score += 100;
+      document.getElementById('score').innerText = score;
+      feedback.style.color = '#10b981';
+      feedback.innerText = "⚡ Correct! +100 PTS";
+      setTimeout(newQuestion, 800);
+    } else {
+      feedback.style.color = '#ef4444';
+      feedback.innerText = "❌ Short circuit! Try again.";
+    }
+  }
+
+  window.onload = function() {
+    newQuestion();
+  };
+</script>
+</body>
+</html>
